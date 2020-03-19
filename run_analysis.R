@@ -11,12 +11,16 @@ y_test <- read.table('UCI HAR Dataset/test/y_test.txt')
 features <- read.table('UCI HAR Dataset/features.txt')
 names <- make.names(features$V2)
 
-activity <- read.table('UCI HAR Dataset/activity_labels.txt')
+# Read in subject file
+
+subject_train <- read.table('UCI HAR Dataset/train/subject_train.txt')
+subject_test <- read.table('UCI HAR Dataset/test/subject_test.txt')
+allsubject <- rbind(subject_train, subject_test)
 
 # Step 1: merge the train and test data set into one data set with proper column names
 
 dataX <- rbind(X_train, X_test)
-names(data) <- names
+#names(dataX) <- names
 
 datay <- rbind(y_train, y_test)
 
@@ -26,3 +30,31 @@ extractcols <- grep('*.std.*|*.mean.*', names)
 
 subdata <- dataX[, extractcols]
 
+# Step 3: Uses descriptive activity names to name the activities in the data set
+
+activity <- read.table('UCI HAR Dataset/activity_labels.txt')
+
+datay['Activity'] <- sapply(datay$V1, function(v) activity[v, 'V2'])
+
+# Step 4: Appropriately labels the data set with descriptive variable names.
+
+extractnames <- grep('*.std.*|*.mean.*', names, value = TRUE)
+colnames(subdata) <- extractnames
+colnames(allsubject) <- 'subject'
+
+subdata.activity <- cbind(subdata, activity = datay$Activity)
+subdata.activity <- cbind(subdata.activity, allsubject)
+
+# step 5: From the data set in step 4, creates a second, independent tidy data set 
+# with the average of each variable for each activity and each subject.
+
+sapply(extractnames, function(x) tapply(subdata.activity[[x]], 
+                                        (subdata.activity$activity) & subdata.activity$subject), mean)
+library(data.table)
+
+DT <- data.table(subdata.activity)
+setkey(DT, activity, subject)
+
+
+
+#key(DT)
