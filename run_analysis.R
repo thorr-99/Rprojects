@@ -54,3 +54,5 @@ DT <- data.table(subdata.activity)
 setkey(DT, activity, subject)
 meanDF <- DT[, lapply(.SD, mean), by=.(activity,subject)]
 
+#export the results to csv format
+write.csv(meanDF, 'TidayDataSet.csv')
