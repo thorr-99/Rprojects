@@ -48,8 +48,6 @@ subdata.activity <- cbind(subdata.activity, allsubject)
 # step 5: From the data set in step 4, creates a second, independent tidy data set 
 # with the average of each variable for each activity and each subject.
 
-sapply(extractnames, function(x) tapply(subdata.activity[x], 
-                                        (subdata.activity$activity) & subdata.activity$subject), mean)
 library(data.table)
 
 DT <- data.table(subdata.activity)
